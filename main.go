@@ -59,12 +59,38 @@ func main() {
 	// Remove duplicates from a given slice.
 	finalPDFList = removeDuplicatesFromSlice(finalPDFList)
 
+	// Extract domain from the first URL in the list
+	domain := extractDomainURL(remoteAPIURL[0])
+	if domain != "" {
+		domain = "https://www.spraynine.com"
+	}
+
 	// Loop through all extracted PDF URLs
 	for _, urls := range finalPDFList {
+		urls = domain + urls  // Prepend domain if URL is relative
 		if isUrlValid(urls) { // Check if the final URL is valid
 			downloadPDF(urls, outputDir) // Download the PDF
 		}
 	}
+}
+
+// extractDomain takes a URL string, extracts the domain (hostname),
+// and prints errors internally if parsing fails.
+func extractDomainURL(inputUrl string) string {
+	// Parse the input string into a structured URL object
+	parsedUrl, parseError := url.Parse(inputUrl)
+
+	// If parsing fails, log the error and return an empty string
+	if parseError != nil {
+		log.Println("Error parsing URL:", parseError)
+		return ""
+	}
+
+	// Extract only the hostname (domain without scheme, port, path, or query)
+	domainName := parsedUrl.Hostname()
+
+	// Return the extracted domain name
+	return domainName
 }
 
 // Opens a file in append mode, or creates it, and writes the content to it
